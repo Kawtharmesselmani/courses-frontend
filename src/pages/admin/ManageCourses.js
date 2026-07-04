@@ -1,23 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useAuth } from "../../contexts/AuthContext";
+
+const API_URL = "https://coursessystem.onrender.com";
 
 const ManageCourses = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
+
   const [formData, setFormData] = useState({
-    course_name: '',
-    description: '',
-    hours: '',
-    lesson: '',
-    price: '',
-    discount: '',
-    status: 'active'
+    course_name: "",
+    description: "",
+    hours: "",
+    lesson: "",
+    price: "",
+    discount: "",
+    status: "active",
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [message, setMessage] = useState({ type: '', text: '' });
+
+  const [message, setMessage] = useState({ type: "", text: "" });
+
   const { token } = useAuth();
 
   useEffect(() => {
@@ -26,11 +30,11 @@ const ManageCourses = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get('https://coursessystem.onrender.com/api/courses');
+      const response = await axios.get(`${API_URL}/api/courses`);
       setCourses(response.data);
     } catch (error) {
-      console.error('Error fetching courses:', error);
-      showMessage('error', 'Failed to load courses');
+      console.error("Error fetching courses:", error);
+      showMessage("error", "Failed to load courses");
     } finally {
       setLoading(false);
     }
@@ -38,104 +42,124 @@ const ManageCourses = () => {
 
   const showMessage = (type, text) => {
     setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
   };
 
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-  };
-
-  const handleImageChange = (e) => {
-    setImageFile(e.target.files[0]);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    const formDataToSend = new FormData();
-    formDataToSend.append('course_name', formData.course_name);
-    formDataToSend.append('description', formData.description);
-    formDataToSend.append('hours', formData.hours);
-    formDataToSend.append('lesson', formData.lesson);
-    formDataToSend.append('price', formData.price);
-    formDataToSend.append('discount', formData.discount);
-    formDataToSend.append('status', formData.status);
-    if (imageFile) {
-      formDataToSend.append('image', imageFile);
-    }
-
-    try {
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      };
-
-      if (editingCourse) {
-        // Update course
-        await axios.put(`https://coursessystem.onrender.com/api/courses/${editingCourse.course_id}`, formDataToSend, config);
-        showMessage('success', 'Course updated successfully');
-      } else {
-        // Create course
-        await axios.post('https://coursessystem.onrender.com/api/courses', formDataToSend, config);
-        showMessage('success', 'Course created successfully');
-      }
-      
-      setShowModal(false);
-      resetForm();
-      fetchCourses();
-    } catch (error) {
-      console.error('Error saving course:', error);
-      showMessage('error', error.response?.data?.error || 'Failed to save course');
-    }
-  };
-
-  const handleEdit = (course) => {
-    setEditingCourse(course);
-    setFormData({
-      course_name: course.course_name,
-      description: course.description,
-      hours: course.hours,
-      lesson: course.lesson,
-      price: course.price,
-      discount: course.discount,
-      status: course.status
-    });
-    setShowModal(true);
-  };
-
-  const handleDelete = async (courseId) => {
-    if (window.confirm('Are you sure you want to delete this course?')) {
-      try {
-        const config = {
-          headers: { 'Authorization': `Bearer ${token}` }
-        };
-        await axios.delete(`https://coursessystem.onrender.com/api/courses/${courseId}`, config);
-        showMessage('success', 'Course deleted successfully');
-        fetchCourses();
-      } catch (error) {
-        console.error('Error deleting course:', error);
-        showMessage('error', 'Failed to delete course');
-      }
-    }
   };
 
   const resetForm = () => {
     setEditingCourse(null);
     setFormData({
-      course_name: '',
-      description: '',
-      hours: '',
-      lesson: '',
-      price: '',
-      discount: '',
-      status: 'active'
+      course_name: "",
+      description: "",
+      hours: "",
+      lesson: "",
+      price: "",
+      discount: "",
+      status: "active",
     });
-    setImageFile(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const dataToSend = {
+      course_name: formData.course_name,
+      description: formData.description,
+      hours: formData.hours,
+      lesson: formData.lesson,
+      price: formData.price,
+      discount: formData.discount,
+      status: formData.status,
+    };
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      };
+
+      if (editingCourse) {
+        await axios.put(
+          `${API_URL}/api/courses/${editingCourse.course_id}`,
+          dataToSend,
+          config
+        );
+
+        showMessage("success", "Course updated successfully");
+      } else {
+        await axios.post(`${API_URL}/api/courses`, dataToSend, config);
+
+        showMessage("success", "Course created successfully");
+      }
+
+      setShowModal(false);
+      resetForm();
+      fetchCourses();
+    } catch (error) {
+      console.error("Error saving course:", error);
+      showMessage(
+        "error",
+        error.response?.data?.error || "Failed to save course"
+      );
+    }
+  };
+
+  const handleEdit = (course) => {
+    setEditingCourse(course);
+
+    setFormData({
+      course_name: course.course_name || "",
+      description: course.description || "",
+      hours: course.hours || "",
+      lesson: course.lesson || "",
+      price: course.price || "",
+      discount: course.discount || "",
+      status: course.status || "active",
+    });
+
+    setShowModal(true);
+  };
+
+  const handleDelete = async (courseId) => {
+    if (window.confirm("Are you sure you want to delete this course?")) {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        await axios.delete(`${API_URL}/api/courses/${courseId}`, config);
+
+        showMessage("success", "Course deleted successfully");
+        fetchCourses();
+      } catch (error) {
+        console.error("Error deleting course:", error);
+        showMessage("error", "Failed to delete course");
+      }
+    }
+  };
+
+  const getCourseImage = (image) => {
+    if (!image) {
+      return "/default-course.png";
+    }
+
+    // If the database contains full image URL
+    if (image.startsWith("http://") || image.startsWith("https://")) {
+      return image;
+    }
+
+    // If the database contains only image name, example: AI.JPG
+    return `${API_URL}/uploads/${image}`;
   };
 
   if (loading) {
@@ -144,18 +168,22 @@ const ManageCourses = () => {
 
   return (
     <div className="container-modern py-8">
-      {/* Message Alert */}
       {message.text && (
-        <div className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg ${
-          message.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-        }`}>
+        <div
+          className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg ${
+            message.type === "success"
+              ? "bg-green-500 text-white"
+              : "bg-red-500 text-white"
+          }`}
+        >
           {message.text}
         </div>
       )}
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Manage Courses</h1>
-        <button 
+
+        <button
           onClick={() => {
             resetForm();
             setShowModal(true);
@@ -166,79 +194,113 @@ const ManageCourses = () => {
         </button>
       </div>
 
-      {/* Courses Table */}
       <div className="card overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hours</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                ID
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Image
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Course Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Hours
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Price
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
+
           <tbody className="divide-y divide-gray-200">
-            {courses.map((course) => (
-              <tr key={course.course_id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">{course.course_id}</td>
-                <td className="px-6 py-4">
-                  <img
-  src={
-    course.image
-      ? `https://coursessystem.onrender.com/uploads/${course.image}`
-      : "/default-course.png"
-  }
-  alt={course.course_name}
-  className="w-full h-48 object-cover"
-  onError={(e) => {
-    e.currentTarget.onerror = null;
-    e.currentTarget.src = "/default-course.png";
-  }}
-/>
-                </td>
-                <td className="px-6 py-4 font-medium">{course.course_name}</td>
-                <td className="px-6 py-4">{course.hours}h</td>
-                <td className="px-6 py-4">${course.price}</td>
-                <td className="px-6 py-4">
-                  <span className={`badge ${
-                    course.status === 'active' ? 'badge-success' : 
-                    course.status === 'upcoming' ? 'badge-warning' : 'badge-danger'
-                  }`}>
-                    {course.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <button 
-                    onClick={() => handleEdit(course)}
-                    className="text-blue-600 hover:text-blue-800 mr-3"
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(course.course_id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    Delete
-                  </button>
+            {courses.length > 0 ? (
+              courses.map((course) => (
+                <tr key={course.course_id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">{course.course_id}</td>
+
+                  <td className="px-6 py-4">
+                    <img
+                      src={getCourseImage(course.image)}
+                      alt={course.course_name}
+                      className="w-24 h-16 object-cover rounded-lg border"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "/default-course.png";
+                      }}
+                    />
+                  </td>
+
+                  <td className="px-6 py-4 font-medium">
+                    {course.course_name}
+                  </td>
+
+                  <td className="px-6 py-4">{course.hours}h</td>
+
+                  <td className="px-6 py-4">${course.price}</td>
+
+                  <td className="px-6 py-4">
+                    <span
+                      className={`badge ${
+                        course.status === "active"
+                          ? "badge-success"
+                          : course.status === "upcoming"
+                          ? "badge-warning"
+                          : "badge-danger"
+                      }`}
+                    >
+                      {course.status}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleEdit(course)}
+                      className="text-blue-600 hover:text-blue-800 mr-3"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(course.course_id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="7"
+                  className="px-6 py-8 text-center text-gray-500"
+                >
+                  No courses found
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* Modal for Add/Edit Course */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <h2 className="text-2xl font-bold mb-4">
-                {editingCourse ? 'Edit Course' : 'Add New Course'}
+                {editingCourse ? "Edit Course" : "Add New Course"}
               </h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="input-label">Course Name *</label>
@@ -276,6 +338,7 @@ const ManageCourses = () => {
                       className="input"
                     />
                   </div>
+
                   <div>
                     <label className="input-label">Lessons *</label>
                     <input
@@ -302,6 +365,7 @@ const ManageCourses = () => {
                       className="input"
                     />
                   </div>
+
                   <div>
                     <label className="input-label">Discount (%)</label>
                     <input
@@ -329,19 +393,6 @@ const ManageCourses = () => {
                   </select>
                 </div>
 
-                <div>
-                  <label className="input-label">Course Image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="input"
-                  />
-                  {editingCourse && !imageFile && (
-                    <p className="text-xs text-gray-500 mt-1">Leave empty to keep current image</p>
-                  )}
-                </div>
-
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
@@ -350,11 +401,9 @@ const ManageCourses = () => {
                   >
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    className="btn-primary"
-                  >
-                    {editingCourse ? 'Update' : 'Create'}
+
+                  <button type="submit" className="btn-primary">
+                    {editingCourse ? "Update" : "Create"}
                   </button>
                 </div>
               </form>
