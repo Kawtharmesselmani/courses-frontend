@@ -21,7 +21,6 @@ const ManageCourses = () => {
   });
 
   const [message, setMessage] = useState({ type: "", text: "" });
-
   const { token } = useAuth();
 
   useEffect(() => {
@@ -148,26 +147,13 @@ const ManageCourses = () => {
     }
   };
 
-  const getCourseImage = (image) => {
-    if (!image) {
-      return "/default-course.png";
-    }
-
-    // If the database contains full image URL
-    if (image.startsWith("http://") || image.startsWith("https://")) {
-      return image;
-    }
-
-    // If the database contains only image name, example: AI.JPG
-    return `${API_URL}/uploads/${image}`;
-  };
-
   if (loading) {
     return <div className="text-center py-8">Loading courses...</div>;
   }
 
   return (
     <div className="container-modern py-8">
+      {/* Message Alert */}
       {message.text && (
         <div
           className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg ${
@@ -194,6 +180,7 @@ const ManageCourses = () => {
         </button>
       </div>
 
+      {/* Courses Table */}
       <div className="card overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
@@ -201,21 +188,31 @@ const ManageCourses = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 ID
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Image
-              </th>
+
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Course Name
               </th>
+
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Hours
               </th>
+
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Lessons
+              </th>
+
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Price
               </th>
+
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Discount
+              </th>
+
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Status
               </th>
+
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Actions
               </th>
@@ -228,25 +225,19 @@ const ManageCourses = () => {
                 <tr key={course.course_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">{course.course_id}</td>
 
-                  <td className="px-6 py-4">
-                    <img
-                      src={getCourseImage(course.image)}
-                      alt={course.course_name}
-                      className="w-24 h-16 object-cover rounded-lg border"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = "/default-course.png";
-                      }}
-                    />
-                  </td>
-
                   <td className="px-6 py-4 font-medium">
                     {course.course_name}
                   </td>
 
                   <td className="px-6 py-4">{course.hours}h</td>
 
+                  <td className="px-6 py-4">{course.lesson}</td>
+
                   <td className="px-6 py-4">${course.price}</td>
+
+                  <td className="px-6 py-4">
+                    {course.discount ? `${course.discount}%` : "0%"}
+                  </td>
 
                   <td className="px-6 py-4">
                     <span
@@ -282,7 +273,7 @@ const ManageCourses = () => {
             ) : (
               <tr>
                 <td
-                  colSpan="7"
+                  colSpan="8"
                   className="px-6 py-8 text-center text-gray-500"
                 >
                   No courses found
@@ -293,6 +284,7 @@ const ManageCourses = () => {
         </table>
       </div>
 
+      {/* Modal for Add/Edit Course */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
