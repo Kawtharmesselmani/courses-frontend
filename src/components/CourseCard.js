@@ -7,7 +7,7 @@ const CourseCard = ({ course, onWhatsAppClick }) => {
 
   const handleWhatsApp = () => {
     const message = `Hello, I want to register in the ${course.course_name}`;
-    const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/71270445?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     if (onWhatsAppClick) onWhatsAppClick(course);
   };
