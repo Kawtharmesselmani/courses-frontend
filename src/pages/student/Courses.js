@@ -50,12 +50,19 @@ const StudentCourses = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
             <div key={course.course_id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-              <img 
-                src={`https://coursessystem.onrender.com/uploads/${course.image}`}
-                alt={course.course_name}
-                className="w-full h-48 object-cover"
-                onError={(e) => e.target.src = 'https://via.placeholder.com/400x300?text=Course+Image'}
-              />
+<img
+  src={
+    course.image
+      ? `https://coursessystem.onrender.com/uploads/${course.image}`
+      : "/default-course.png"
+  }
+  alt={course.course_name}
+  className="w-full h-48 object-cover"
+  onError={(e) => {
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = "/default-course.png";
+  }}
+/>
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2">{course.course_name}</h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
