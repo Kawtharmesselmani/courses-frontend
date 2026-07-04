@@ -77,11 +77,11 @@ const ManageCourses = () => {
 
       if (editingCourse) {
         // Update course
-        await axios.put(`http://localhost:5000/api/courses/${editingCourse.course_id}`, formDataToSend, config);
+        await axios.put(`https://coursessystem.onrender.com/api/courses/${editingCourse.course_id}`, formDataToSend, config);
         showMessage('success', 'Course updated successfully');
       } else {
         // Create course
-        await axios.post('http://localhost:5000/api/courses', formDataToSend, config);
+        await axios.post('https://coursessystem.onrender.com/api/courses', formDataToSend, config);
         showMessage('success', 'Course created successfully');
       }
       
@@ -185,12 +185,19 @@ const ManageCourses = () => {
               <tr key={course.course_id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">{course.course_id}</td>
                 <td className="px-6 py-4">
-                  <img 
-                    src={`https://coursessystem.onrender.com/uploads/${course.image}`}
-                    alt={course.course_name}
-                    className="w-12 h-12 object-cover rounded"
-                    onError={(e) => e.target.src = 'https://via.placeholder.com/50'}
-                  />
+                  <img
+  src={
+    course.image
+      ? `https://coursessystem.onrender.com/uploads/${course.image}`
+      : "/default-course.png"
+  }
+  alt={course.course_name}
+  className="w-full h-48 object-cover"
+  onError={(e) => {
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = "/default-course.png";
+  }}
+/>
                 </td>
                 <td className="px-6 py-4 font-medium">{course.course_name}</td>
                 <td className="px-6 py-4">{course.hours}h</td>
