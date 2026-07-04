@@ -16,7 +16,7 @@ const ManageCourses = () => {
     discount: '',
     status: 'active'
   });
-  // const [imageFile, setImageFile] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
   const { token } = useAuth();
 
@@ -48,9 +48,9 @@ const ManageCourses = () => {
     });
   };
 
-  // const handleImageChange = (e) => {
-  //   setImageFile(e.target.files[0]);
-  // };
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,9 +63,9 @@ const ManageCourses = () => {
     formDataToSend.append('price', formData.price);
     formDataToSend.append('discount', formData.discount);
     formDataToSend.append('status', formData.status);
-    // if (imageFile) {
-    //   formDataToSend.append('image', imageFile);
-    // }
+    if (imageFile) {
+      formDataToSend.append('image', imageFile);
+    }
 
     try {
       const config = {
@@ -135,7 +135,7 @@ const ManageCourses = () => {
       discount: '',
       status: 'active'
     });
-    // setImageFile(null);
+    setImageFile(null);
   };
 
   if (loading) {
@@ -329,7 +329,7 @@ const ManageCourses = () => {
                   </select>
                 </div>
 
-                {/* <div>
+                <div>
                   <label className="input-label">Course Image</label>
                   <input
                     type="file"
@@ -340,7 +340,7 @@ const ManageCourses = () => {
                   {editingCourse && !imageFile && (
                     <p className="text-xs text-gray-500 mt-1">Leave empty to keep current image</p>
                   )}
-                </div> */}
+                </div>
 
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
